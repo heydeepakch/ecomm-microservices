@@ -1,0 +1,26 @@
+{
+  "name": "ecom-microservices",
+  "version": "1.0.0",
+  "description": "E-commerce platform built with microservices architecture",
+  "private": true,
+  "workspaces": [
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm run install:services",
+    "install:services": "npm install --workspaces",
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "docker:up": "cd infrastructure && docker-compose up -d",
+    "docker:down": "cd infrastructure && docker-compose down",
+    "docker:logs": "cd infrastructure && docker-compose logs -f",
+    "migrate": "bash scripts/migrate.sh",
+    "seed": "bash scripts/seed.sh"
+  },
+  "keywords": ["microservices", "ecommerce", "nodejs", "typescript", "docker"],
+  "author": "Deepak Choudhary",
+  "license": "MIT"
+}
