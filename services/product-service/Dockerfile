@@ -9,13 +9,18 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+# RUN npm ci --only=production
+# RUN npm install --omit=dev
+RUN npm install --verbose
 
 # Copy source code
 COPY . .
 
 # Build TypeScript
 RUN npm run build
+
+# # Remove dev dependencies to reduce image size
+# RUN npm prune --omit=dev
 
 # Expose port
 EXPOSE 3002

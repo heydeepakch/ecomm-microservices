@@ -3,19 +3,14 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import promClient from 'prom-client';
-import productRoutes from './routes/productRoutes';
-import categoryRoutes from './routes/categoryRoutes';
+import orderRoutes from './routes/orderRoutes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import { initializeBucket } from './config/minio';
 import redisClient from './config/redis';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3002;
-
-// Initialize MinIO bucket
-initializeBucket();
+const PORT = process.env.PORT || 3003;
 
 // Prometheus metrics
 const register = new promClient.Registry();
@@ -50,17 +45,16 @@ app.use((req, res, next) => {
 // Health check
 app.get('/health', async (req, res) => {
   try {
-    // Check Redis connection
     await redisClient.ping();
     res.status(200).json({
       status: 'healthy',
-      service: 'product-service',
+      service: 'order-service',
       redis: 'connected',
     });
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
-      service: 'product-service',
+      service: 'order-service',
       redis: 'disconnected',
     });
   }
@@ -73,21 +67,17 @@ app.get('/metrics', async (req, res) => {
 });
 
 // Routes
-app.use('/products', productRoutes);
-app.use('/categories', categoryRoutes);
+app.use('/orders', orderRoutes);
 
 // Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Start server
-// Start server (only if not in test environment)
-if (process.env.NODE_ENV !== 'test') {
-    app.listen(PORT, () => {
-      console.log(`🚀 Product Service running on port ${PORT}`);
-      console.log(`📊 Metrics available at http://localhost:${PORT}/metrics`);
-    });
-  }
+app.listen(PORT, () => {
+  console.log(`🚀 Order Service running on port ${PORT}`);
+  console.log(`📊 Metrics available at http://localhost:${PORT}/metrics`);
+});
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

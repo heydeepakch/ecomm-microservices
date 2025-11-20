@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "E-commerce platform built with microservices architecture",
   "private": true,
-  "workspaces": [
-    "services/*",
-    "packages/*"
-  ],
+  
   "scripts": {
     "install:all": "npm install && npm run install:services",
     "install:services": "npm install --workspaces",
