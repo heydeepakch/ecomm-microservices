@@ -12,4 +12,7 @@ docker exec -i ecommerce-postgres psql -U ecommerce_user -d ecommerce_db < servi
 echo "Migrating Order Service..."
 docker exec -i ecommerce-postgres psql -U ecommerce_user -d ecommerce_db < services/order-service/migrations/001_create_orders_tables.sql
 
+echo "Migrating Payment Service..."
+docker exec -i ecommerce-postgres psql -U ecommerce_user -d ecommerce_db < services/payment-service/migrations/001_create_payments_tables.sql
+
 echo "✅ Migrations completed!"
