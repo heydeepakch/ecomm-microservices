@@ -1,29 +1,66 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
+  external_labels:
+    cluster: 'ecommerce-dev'
+    environment: 'development'
 
+# Alertmanager configuration
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#             - alertmanager:9093
+
+# Load rules
+rule_files:
+  # - "alert-rules.yml"
+
+# Scrape configurations
 scrape_configs:
+  # User Service
   - job_name: 'user-service'
     static_configs:
       - targets: ['user-service:3001']
     metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
 
+  # Product Service
   - job_name: 'product-service'
     static_configs:
       - targets: ['product-service:3002']
     metrics_path: '/metrics'
 
+  # Order Service
   - job_name: 'order-service'
     static_configs:
       - targets: ['order-service:3003']
     metrics_path: '/metrics'
 
+  # Payment Service
   - job_name: 'payment-service'
     static_configs:
       - targets: ['payment-service:3004']
     metrics_path: '/metrics'
 
+  # API Gateway
   - job_name: 'api-gateway'
     static_configs:
       - targets: ['api-gateway:8080']
     metrics_path: '/metrics'
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # Node Exporter (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']

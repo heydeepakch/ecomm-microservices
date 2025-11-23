@@ -39,10 +39,10 @@ services:
       - ../services/api-gateway/src:/app/src:ro
     command: npm run dev
 
-  # Development UI tools - easier access
-  grafana:
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin  # Simpler password for dev
+  # # Development UI tools - easier access
+  # grafana:
+  #   environment:
+  #     GF_SECURITY_ADMIN_PASSWORD: admin  # Simpler password for dev
 
   minio:
     environment:
