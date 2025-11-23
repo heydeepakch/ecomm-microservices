@@ -3,10 +3,27 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const connection = {
-  host: process.env.REDIS_HOST || 'redis',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
+// Parse REDIS_URL or fall back to individual host/port
+const getRedisConnection = () => {
+  const redisUrl = process.env.REDIS_URL;
+  
+  if (redisUrl) {
+    // Parse redis://host:port format
+    const url = new URL(redisUrl);
+    return {
+      host: url.hostname,
+      port: parseInt(url.port || '6379'),
+    };
+  }
+  
+  // Fallback to individual env vars
+  return {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379'),
+  };
 };
+
+const connection = getRedisConnection();
 
 const queueOptions: QueueOptions = {
   connection,
@@ -30,4 +47,4 @@ const queueOptions: QueueOptions = {
 export const orderQueue = new Queue('orders', queueOptions);
 export const emailQueue = new Queue('emails', queueOptions);
 
-console.log('✅ Order queues initialized');
+console.log('✅ Order queues initialized with Redis:', connection.host + ':' + connection.port);
