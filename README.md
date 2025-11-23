@@ -9,7 +9,7 @@
 
 > **A cloud-native e-commerce backend built with microservices, focusing on real-world backend engineering, distributed systems, and DevOps practices.**
 
-[📖 Documentation](docs/INDEX.md) • [🚀 Quick Start](#-quick-start) • [💼 For Recruiters](#-for-recruiters)
+[📖 Documentation](docs/INDEX.md) • [🚀 Quick Start](#-quick-start)
 
 ---
 
