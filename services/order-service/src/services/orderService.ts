@@ -168,6 +168,24 @@ export const OrderService = {
     }
   },
 
+
+   // Update payment status
+   async updatePaymentStatus(orderId: number, paymentStatus: string) {
+    const validPaymentStatuses = ['pending', 'processing', 'succeeded', 'failed', 'cancelled', 'refunded'];
+    
+    if (!validPaymentStatuses.includes(paymentStatus)) {
+      throw new Error('Invalid payment status');
+    }
+
+    const order = await OrderModel.updatePaymentStatus(orderId, paymentStatus);
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    return order;
+  },
+
   // Get order by ID
   async getOrderById(orderId: number, userId?: number) {
     const order = await OrderModel.findByIdWithItems(orderId);

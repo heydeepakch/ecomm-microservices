@@ -4,7 +4,14 @@ import { authMiddleware, requireRole } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// All routes require authentication
+// Internal service-to-service routes (NO AUTH)
+// These should only be accessible from within the Docker network
+router.get('/internal/:id', OrderController.getOrderInternal);
+router.put('/internal/:id/payment-status', OrderController.updatePaymentStatusInternal);
+router.put('/internal/:id/status', OrderController.updateOrderStatusInternal);
+
+
+// Public routes - All require authentication
 router.use(authMiddleware);
 
 // Create order

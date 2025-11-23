@@ -11,11 +11,12 @@ CREATE TYPE order_status AS ENUM (
 );
 
 -- Create payment status enum
-CREATE TYPE payment_status AS ENUM (
+CREATE TYPE IF NOT EXISTS payment_status AS ENUM (
     'pending',
     'processing',
-    'completed',
+    'succeeded',  
     'failed',
+    'cancelled',  
     'refunded'
 );
 

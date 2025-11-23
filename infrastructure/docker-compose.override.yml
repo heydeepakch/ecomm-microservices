@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Development overrides for all services
+  
+  user-service:
+    environment:
+      LOG_LEVEL: debug
+    volumes:
+      - ../services/user-service/src:/app/src:ro  # Read-only for safety
+    command: npm run dev  # Use nodemon/ts-node-dev for hot-reload
+
+  product-service:
+    environment:
+      LOG_LEVEL: debug
+    volumes:
+      - ../services/product-service/src:/app/src:ro
+    command: npm run dev
+
+  order-service:
+    environment:
+      LOG_LEVEL: debug
+    volumes:
+      - ../services/order-service/src:/app/src:ro
+    command: npm run dev
+
+  payment-service:
+    environment:
+      LOG_LEVEL: debug
+    volumes:
+      - ../services/payment-service/src:/app/src:ro
+    command: npm run dev
+
+  api-gateway:
+    environment:
+      LOG_LEVEL: debug
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001  # For frontend dev
+    volumes:
+      - ../services/api-gateway/src:/app/src:ro
+    command: npm run dev
+
+  # Development UI tools - easier access
+  grafana:
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin  # Simpler password for dev
+
+  minio:
+    environment:
+      MINIO_ROOT_PASSWORD: minio123  # Simpler password for dev

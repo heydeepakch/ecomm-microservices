@@ -17,7 +17,8 @@ class OrderServiceClient {
 
   async getOrder(orderId: number) {
     try {
-      const response = await this.client.get(`/orders/${orderId}`);
+      // Use internal endpoint (no auth required)
+      const response = await this.client.get(`/orders/internal/${orderId}`);
       return response.data;
     } catch (error: any) {
       console.error('Error fetching order:', error.message);
@@ -27,13 +28,38 @@ class OrderServiceClient {
 
   async updateOrderStatus(orderId: number, status: string) {
     try {
-      const response = await this.client.put(`/orders/${orderId}/status`, {
+      // Use internal endpoint or add service token
+      const response = await this.client.put(`/orders/internal/${orderId}/status`, {
         status,
       });
       return response.data;
     } catch (error: any) {
       console.error('Error updating order status:', error.message);
       throw new Error('Failed to update order status');
+    }
+  }
+
+  async updatePaymentStatus(orderId: number, paymentStatus: string) {
+    try {
+      console.log(`[OrderClient] Updating payment_status for order ${orderId} to '${paymentStatus}'`);
+      const response = await this.client.put(`/orders/internal/${orderId}/payment-status`, {
+        payment_status: paymentStatus,
+      });
+      console.log(`[OrderClient] Payment status updated successfully:`, response.data);
+      return response.data;
+    } catch (error: any) {
+      // Log the full error details
+      console.error('[OrderClient] Error updating payment status:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+      });
+      
+      // Include the actual error message from order service
+      const errorMessage = error.response?.data?.error || error.message;
+      throw new Error(`Failed to update payment status: ${errorMessage}`);
     }
   }
 }

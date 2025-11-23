@@ -42,6 +42,7 @@ export const PaymentService = {
       currency: 'INR',
       automatic_payment_methods: {
         enabled: true,
+        allow_redirects: 'never',
       },
       metadata: {
         orderId: orderId.toString(),
@@ -185,15 +186,16 @@ export const PaymentService = {
       paymentIntent
     );
 
-    // Update order status to 'paid'
-    try {
-      await orderServiceClient.updateOrderStatus(orderId, 'paid');
-      console.log(`[Webhook] Order ${orderId} marked as paid`);
-    } catch (error) {
-      console.error(`Failed to update order ${orderId}:`, error);
-      // Payment succeeded but order update failed - needs manual intervention
-      // In production, queue for retry or alert admin
-    }
+   // Update order payment_status to 'paid'
+try {
+    console.log(`[Webhook] Attempting to update order ${orderId} payment_status to 'paid'...`);
+    const updatedOrder = await orderServiceClient.updatePaymentStatus(orderId, 'succeeded');
+    console.log(`[Webhook] Order ${orderId} payment_status updated successfully:`, updatedOrder);
+    console.log(`[Webhook] Updated order payment_status:`, updatedOrder.payment_status);
+  } catch (error: any) {
+    console.error(`[Webhook] Failed to update order ${orderId} payment_status:`, error.message);
+    console.error(`[Webhook] Error stack:`, error.stack);
+  }
   },
 
   // Handle failed payment

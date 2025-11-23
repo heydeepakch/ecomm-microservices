@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const getJWTSecret = () => process.env.JWT_SECRET || 'secret-key-change-in-production'
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -12,7 +14,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     }
 
     const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, getJWTSecret()) as any; 
 
     // Attach user info to request
     (req as any).user = decoded;
@@ -29,7 +31,7 @@ export const optionalAuth = (req: Request, res: Response, next: NextFunction) =>
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      const decoded = jwt.verify(token, getJWTSecret()) as any; 
       (req as any).user = decoded;
     }
   } catch (error) {

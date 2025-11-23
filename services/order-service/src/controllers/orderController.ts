@@ -100,6 +100,24 @@ export const OrderController = {
     }
   },
 
+  // GET /orders/internal/:id (for service-to-service calls)
+  async getOrderInternal(req: Request, res: Response) {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      // No user authentication check - this is for internal services
+      const order = await OrderService.getOrderById(orderId);
+      
+      res.json(order);
+    } catch (error: any) {
+      console.error('Get order (internal) error:', error);
+      if (error.message === 'Order not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   // PUT /orders/:id/status
   async updateOrderStatus(req: Request, res: Response) {
     try {
@@ -114,6 +132,51 @@ export const OrderController = {
       res.json(order);
     } catch (error: any) {
       console.error('Update order status error:', error);
+      res.status(400).json({ error: error.message });
+    }
+  },
+
+  async updateOrderStatusInternal(req: Request, res: Response) {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+      }
+
+      // No authentication check - this is for internal services
+      const order = await OrderService.updateOrderStatus(orderId, status);
+      res.json(order);
+    } catch (error: any) {
+      console.error('Update order status (internal) error:', error);
+      res.status(400).json({ error: error.message });
+    }
+  },
+
+  async updatePaymentStatusInternal(req: Request, res: Response) {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { payment_status } = req.body;
+  
+      console.log(`[Order] Received payment_status update request for order ${orderId}:`, { payment_status, body: req.body });
+  
+      if (!payment_status) {
+        console.error(`[Order] Missing payment_status in request body`);
+        return res.status(400).json({ error: 'Payment status is required' });
+      }
+  
+      console.log(`[Order] Calling OrderService.updatePaymentStatus(${orderId}, '${payment_status}')`);
+      const order = await OrderService.updatePaymentStatus(orderId, payment_status);
+      
+      console.log(`[Order] Payment status updated successfully:`, { 
+        orderId: order.id, 
+        payment_status: order.payment_status 
+      });
+      
+      res.json(order);
+    } catch (error: any) {
+      console.error('[Order] Update payment status (internal) error:', error);
       res.status(400).json({ error: error.message });
     }
   },
