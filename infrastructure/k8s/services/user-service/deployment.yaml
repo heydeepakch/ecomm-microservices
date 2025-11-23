@@ -4,7 +4,7 @@ metadata:
   name: user-service
   namespace: ecommerce
 spec:
-  replicas: 2  # Run 2 instances for high availability
+  replicas: 2  
   selector:
     matchLabels:
       app: user-service
@@ -15,8 +15,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: ecommerce-user-service:latest  # You'll need to build and push this
-        # Or use: image: your-dockerhub-username/ecommerce-user-service:latest
+        image: ecommerce-user-service:latest  
         ports:
         - containerPort: 3001
         env:
