@@ -1,0 +1,1128 @@
+{
+    "info": {
+      "name": "E-Commerce Microservices API",
+      "description": "Complete API collection for all microservices. Use API Gateway endpoints (recommended) or direct service endpoints.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "_exporter_id": "ecommerce-api"
+    },
+    "item": [
+      {
+        "name": "1. Authentication",
+        "item": [
+          {
+            "name": "Register User",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 201\", function () {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "pm.test(\"Response has user data\", function () {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('user');",
+                    "    pm.expect(jsonData.user).to.have.property('id');",
+                    "    pm.environment.set('user_id', jsonData.user.id);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"Password123!\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"role\": \"customer\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/auth/register",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["auth", "register"]
+              },
+              "description": "Register a new user. \n\n**Password Requirements:**\n- Minimum 8 characters\n- At least one uppercase letter\n- At least one number\n- At least one special character (!@#$%^&*)\n\n**Roles:** customer, seller, admin\n\n**Response:** Returns user object (without password)"
+            },
+            "response": []
+          },
+          {
+            "name": "Register Seller",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 201\", function () {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "if (pm.response.code === 201) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.environment.set('user_id', jsonData.user.id);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"seller@example.com\",\n  \"password\": \"Password123!\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"role\": \"seller\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/auth/register",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["auth", "register"]
+              },
+              "description": "Register a seller account"
+            },
+            "response": []
+          },
+          {
+            "name": "Login",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test(\"Response has tokens\", function () {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('accessToken');",
+                    "    pm.expect(jsonData).to.have.property('refreshToken');",
+                    "    pm.expect(jsonData).to.have.property('user');",
+                    "    ",
+                    "    // Save tokens to environment",
+                    "    pm.environment.set('access_token', jsonData.accessToken);",
+                    "    pm.environment.set('refresh_token', jsonData.refreshToken);",
+                    "    pm.environment.set('user_id', jsonData.user.id);",
+                    "    ",
+                    "    console.log('Tokens saved to environment');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"Password123!\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/auth/login",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["auth", "login"]
+              },
+              "description": "Login and receive JWT tokens. Tokens are automatically saved to environment variables."
+            },
+            "response": []
+          },
+          {
+            "name": "Refresh Token",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    if (jsonData.accessToken) {",
+                    "        pm.environment.set('access_token', jsonData.accessToken);",
+                    "    }",
+                    "    if (jsonData.refreshToken) {",
+                    "        pm.environment.set('refresh_token', jsonData.refreshToken);",
+                    "    }",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/auth/refresh",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["auth", "refresh"]
+              },
+              "description": "Refresh access token using refresh token"
+            },
+            "response": []
+          },
+          {
+            "name": "Logout",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/auth/logout",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["auth", "logout"]
+              },
+              "description": "Logout and invalidate refresh token"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Profile",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test(\"Response has user profile\", function () {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('id');",
+                    "    pm.expect(jsonData).to.have.property('email');",
+                    "    pm.expect(jsonData).to.not.have.property('password_hash');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/users/profile",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["users", "profile"]
+              },
+              "description": "Get current authenticated user's profile"
+            },
+            "response": []
+          },
+          {
+            "name": "Update Profile",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"first_name\": \"John Updated\",\n  \"last_name\": \"Doe Updated\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/users/profile",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["users", "profile"]
+              },
+              "description": "Update user profile (first_name, last_name)"
+            },
+            "response": []
+          }
+        ],
+        "description": "Authentication endpoints for user registration, login, token refresh, and profile management"
+      },
+      {
+        "name": "2. Products",
+        "item": [
+          {
+            "name": "Get All Products",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "pm.test(\"Response has products array\", function () {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('products');",
+                    "    pm.expect(jsonData.products).to.be.an('array');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/products?page=1&limit=20",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["products"],
+                "query": [
+                  {
+                    "key": "page",
+                    "value": "1",
+                    "description": "Page number"
+                  },
+                  {
+                    "key": "limit",
+                    "value": "20",
+                    "description": "Items per page"
+                  },
+                  {
+                    "key": "search",
+                    "value": "",
+                    "description": "Search term",
+                    "disabled": true
+                  },
+                  {
+                    "key": "category",
+                    "value": "",
+                    "description": "Filter by category_id",
+                    "disabled": true
+                  },
+                  {
+                    "key": "minPrice",
+                    "value": "",
+                    "description": "Minimum price",
+                    "disabled": true
+                  },
+                  {
+                    "key": "maxPrice",
+                    "value": "",
+                    "description": "Maximum price",
+                    "disabled": true
+                  },
+                  {
+                    "key": "sortBy",
+                    "value": "",
+                    "description": "Sort by: price_asc, price_desc, name_asc, name_desc",
+                    "disabled": true
+                  }
+                ]
+              },
+              "description": "Get paginated list of products with optional filters:\n- **search**: Full-text search\n- **category**: Filter by category_id\n- **minPrice/maxPrice**: Price range\n- **sortBy**: Sorting options"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Product by ID",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.environment.set('product_id', jsonData.id);",
+                    "    if (jsonData.category_id) {",
+                    "        pm.environment.set('category_id', jsonData.category_id);",
+                    "    }",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/products/:id",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["products", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{product_id}}",
+                    "description": "Product ID"
+                  }
+                ]
+              },
+              "description": "Get product details by ID. Automatically saves product_id to environment."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Categories",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "",
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    if (Array.isArray(jsonData) && jsonData.length > 0) {",
+                    "        pm.environment.set('category_id', jsonData[0].id);",
+                    "    }",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/categories",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["categories"]
+              },
+              "description": "Get all product categories"
+            },
+            "response": []
+          },
+          {
+            "name": "Create Product (Seller/Admin)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 201\", function () {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "if (pm.response.code === 201) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.environment.set('product_id', jsonData.id);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"MacBook Pro M3\",\n  \"description\": \"High-performance laptop with M3 chip\",\n  \"price\": 1999.99,\n  \"stock\": 50,\n  \"category_id\": {{category_id}}\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/products",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["products"]
+              },
+              "description": "Create a new product. Requires seller or admin role. Seller ID is automatically set from JWT token."
+            },
+            "response": []
+          },
+          {
+            "name": "Update Product (Seller/Admin)",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"MacBook Pro M3 Updated\",\n  \"price\": 2199.99,\n  \"stock\": 30\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/products/:id",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["products", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{product_id}}"
+                  }
+                ]
+              },
+              "description": "Update product. Sellers can only update their own products. Admins can update any product."
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Product (Seller/Admin)",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "DELETE",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/products/:id",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["products", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{product_id}}"
+                  }
+                ]
+              },
+              "description": "Delete product. Sellers can only delete their own products. Admins can delete any product."
+            },
+            "response": []
+          },
+          {
+            "name": "Upload Product Image (Seller/Admin)",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "POST",
+              "header": [],
+              "body": {
+                "mode": "formdata",
+                "formdata": [
+                  {
+                    "key": "image",
+                    "type": "file",
+                    "src": [],
+                    "description": "Product image file (JPG, PNG, WebP)"
+                  }
+                ]
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/products/:id/upload-image",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["products", ":id", "upload-image"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{product_id}}"
+                  }
+                ]
+              },
+              "description": "Upload product image. Image is optimized and stored in MinIO."
+            },
+            "response": []
+          }
+        ],
+        "description": "Product catalog endpoints for browsing, creating, updating, and managing products"
+      },
+      {
+        "name": "3. Orders",
+        "item": [
+          {
+            "name": "Create Order",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 201\", function () {",
+                    "    pm.response.to.have.status(201);",
+                    "});",
+                    "",
+                    "pm.test(\"Response has order data\", function () {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property('id');",
+                    "    pm.expect(jsonData).to.have.property('status');",
+                    "    pm.expect(jsonData).to.have.property('items');",
+                    "    ",
+                    "    // Save order ID for subsequent requests",
+                    "    pm.environment.set('order_id', jsonData.id);",
+                    "    console.log('Order ID saved:', jsonData.id);",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"items\": [\n    {\n      \"productId\": {{product_id}},\n      \"quantity\": 2\n    }\n  ],\n  \"shippingAddress\": \"123 Main Street\",\n  \"shippingCity\": \"New York\",\n  \"shippingState\": \"NY\",\n  \"shippingZip\": \"10001\",\n  \"shippingCountry\": \"USA\",\n  \"customerNotes\": \"Please deliver in the morning\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/orders",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["orders"]
+              },
+              "description": "Create a new order. This implements the Saga pattern:\n1. Validates products exist\n2. Checks stock availability\n3. Reserves stock (with idempotency)\n4. Creates order in database\n5. Queues email notification\n\n**Note:** If any step fails, compensating transactions rollback changes."
+            },
+            "response": []
+          },
+          {
+            "name": "Get User Orders",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/orders?page=1&limit=20",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["orders"],
+                "query": [
+                  {
+                    "key": "page",
+                    "value": "1"
+                  },
+                  {
+                    "key": "limit",
+                    "value": "20"
+                  }
+                ]
+              },
+              "description": "Get paginated list of current user's orders"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Order by ID",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/orders/:id",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["orders", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{order_id}}"
+                  }
+                ]
+              },
+              "description": "Get order details. Users can only see their own orders. Admins can see all orders."
+            },
+            "response": []
+          },
+          {
+            "name": "Cancel Order",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"reason\": \"Changed my mind\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/orders/:id/cancel",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["orders", ":id", "cancel"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{order_id}}"
+                  }
+                ]
+              },
+              "description": "Cancel an order. Only allowed if order status is 'pending' or 'confirmed'. Automatically releases reserved stock."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Order History",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/orders/:id/history",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["orders", ":id", "history"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{order_id}}"
+                  }
+                ]
+              },
+              "description": "Get order status change history (audit trail)"
+            },
+            "response": []
+          },
+          {
+            "name": "Update Order Status (Admin/Seller)",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"status\": \"shipped\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/orders/:id/status",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["orders", ":id", "status"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{order_id}}"
+                  }
+                ]
+              },
+              "description": "Update order status. Valid statuses: pending, confirmed, paid, shipped, delivered, cancelled. Requires admin or seller role."
+            },
+            "response": []
+          },
+          {
+            "name": "Add Tracking Info (Admin/Seller)",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"trackingNumber\": \"TRACK123456789\",\n  \"carrier\": \"FedEx\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/orders/:id/tracking",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["orders", ":id", "tracking"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "{{order_id}}"
+                  }
+                ]
+              },
+              "description": "Add tracking information to an order. Requires admin or seller role."
+            },
+            "response": []
+          }
+        ],
+        "description": "Order management endpoints. Orders use Saga pattern for distributed transactions."
+      },
+      {
+        "name": "4. Payments",
+        "item": [
+          {
+            "name": "Create Payment Intent",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test(\"Status code is 200 or 201\", function () {",
+                    "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                    "});",
+                    "",
+                    "if (pm.response.code === 200 || pm.response.code === 201) {",
+                    "    var jsonData = pm.response.json();",
+                    "    if (jsonData.id) {",
+                    "        pm.environment.set('payment_intent_id', jsonData.id);",
+                    "    }",
+                    "    if (jsonData.clientSecret) {",
+                    "        console.log('Client Secret:', jsonData.clientSecret);",
+                    "    }",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"orderId\": {{order_id}}\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/payments/create-intent",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["payments", "create-intent"]
+              },
+              "description": "Create a Stripe payment intent for an order. Returns clientSecret for frontend Stripe integration."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Payment Status",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{api_gateway_url}}/payments/order/:orderId",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["payments", "order", ":orderId"],
+                "variable": [
+                  {
+                    "key": "orderId",
+                    "value": "{{order_id}}"
+                  }
+                ]
+              },
+              "description": "Get payment status for an order. Payment status is updated via Stripe webhooks."
+            },
+            "response": []
+          },
+          {
+            "name": "Create Refund (Admin)",
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{access_token}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"orderId\": {{order_id}},\n  \"reason\": \"requested_by_customer\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{api_gateway_url}}/payments/refund",
+                "host": ["{{api_gateway_url}}"],
+                "path": ["payments", "refund"]
+              },
+              "description": "Create a refund for a payment. Requires admin role. Refund status is updated via Stripe webhook."
+            },
+            "response": []
+          }
+        ],
+        "description": "Payment processing endpoints using Stripe. Payment status is updated asynchronously via webhooks."
+      },
+      {
+        "name": "5. Health Checks",
+        "item": [
+          {
+            "name": "API Gateway Health",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:8080/health",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["health"]
+              },
+              "description": "Check API Gateway health status"
+            },
+            "response": []
+          },
+          {
+            "name": "All Services Health",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:8080/health/all",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["health", "all"]
+              },
+              "description": "Check health status of all microservices"
+            },
+            "response": []
+          }
+        ],
+        "description": "Health check endpoints for monitoring"
+      }
+    ],
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8080",
+        "type": "string"
+      }
+    ]
+  }

@@ -75,7 +75,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
-      DATABASE_URL: postgresql://ecommerce_user:ecommerce_pass@postgres:5432/ecommerce_db
+      DATABASE_URL: ${POSTGRES_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       REDIS_URL: redis://redis:6379
@@ -101,7 +101,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3002
-      DATABASE_URL: postgresql://${POSTGRES_USER:-ecommerce_user}:${POSTGRES_PASSWORD:-ecommerce_pass}@postgres:5432/${POSTGRES_DB:-ecommerce_db}
+      DATABASE_URL: ${POSTGRES_URL}
       REDIS_URL: redis://redis:6379
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
@@ -132,7 +132,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3003
-      DATABASE_URL: postgresql://${POSTGRES_USER:-ecommerce_user}:${POSTGRES_PASSWORD:-ecommerce_pass}@postgres:5432/${POSTGRES_DB:-ecommerce_db}
+      DATABASE_URL: ${POSTGRES_URL}
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
@@ -161,7 +161,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3004
-      DATABASE_URL: postgresql://${POSTGRES_USER:-ecommerce_user}:${POSTGRES_PASSWORD:-ecommerce_pass}@postgres:5432/${POSTGRES_DB:-ecommerce_db}
+      DATABASE_URL: ${POSTGRES_URL}
       REDIS_URL: redis://redis:6379
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
